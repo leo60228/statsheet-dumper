@@ -67,24 +67,14 @@ async fn write_player_statsheet(day: usize, stats: PlayerStatsheet) -> Result<()
 }
 
 async fn write_game(day: usize, game: GameUpdate) -> Result<()> {
-    let mut home_path = PathBuf::from("out");
-    home_path.push("teams");
-    home_path.push(&game.home_team);
-    let make_home = fs::create_dir_all(&home_path);
-    let mut away_path = PathBuf::from("out");
-    away_path.push("teams");
-    away_path.push(&game.away_team);
-    let make_away = fs::create_dir_all(&away_path);
-    futures::future::try_join(make_home, make_away).await?;
-    home_path.push(&day.to_string());
-    home_path.set_extension("json");
-    away_path.push(&day.to_string());
-    away_path.set_extension("json");
+    let mut path = PathBuf::from("out");
+    path.push("games");
+    path.push(&day.to_string());
+    fs::create_dir_all(&path).await?;
+    path.push(&game.home_team);
+    path.set_extension("json");
     println!("writing day {}", day);
-    let json = serde_json::to_string(&game)?;
-    let write_home = fs::write(&home_path, &json);
-    let write_away = fs::write(&away_path, &json);
-    futures::future::try_join(write_home, write_away).await?;
+    fs::write(&path, &serde_json::to_string(&game)?).await?;
     println!("written day {}", day);
     Ok(())
 }
