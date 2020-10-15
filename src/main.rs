@@ -55,7 +55,7 @@ fn surf_error(error: surf::Error) -> Error {
 
 async fn write_player_statsheet(day: usize, stats: PlayerStatsheet) -> Result<()> {
     let mut path = PathBuf::from("out");
-    path.push(&stats.team_id);
+    path.push("players");
     path.push(&stats.player_id);
     fs::create_dir_all(&path).await?;
     path.push(&day.to_string());
@@ -68,9 +68,11 @@ async fn write_player_statsheet(day: usize, stats: PlayerStatsheet) -> Result<()
 
 async fn write_game(day: usize, game: GameUpdate) -> Result<()> {
     let mut home_path = PathBuf::from("out");
+    home_path.push("teams");
     home_path.push(&game.home_team);
     let make_home = fs::create_dir_all(&home_path);
     let mut away_path = PathBuf::from("out");
+    away_path.push("teams");
     away_path.push(&game.away_team);
     let make_away = fs::create_dir_all(&away_path);
     futures::future::try_join(make_home, make_away).await?;
